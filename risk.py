@@ -15,7 +15,7 @@ def welcome_screen():
     ASCII tank! http://www.ascii-art.de/ascii/t/tank.txt
 
     '''
-    
+
     print("Welcome to Risk!")
     print("    .--._____,")
     print(" .-='=='==-, \"")
@@ -28,11 +28,11 @@ def welcome_screen():
 
 def user_inputs(text):
     '''
-    Forcing user input to be an integer and checking the values
-    
+    Forcing user input to be an integer
+
     Arguments
     Text: Text that will be printed with the user input
-    
+
     Outputs
     Units: the amount of units the player inputs
     '''
@@ -46,28 +46,49 @@ def user_inputs(text):
             return units
 
 
+def check_user_values(a_units, loseable_units):
+        '''
+        Checks to see if the attacker has more units than the amount of units they're willing to lose
+
+        Arguments
+        a_units: attacking units
+        loseable_units: units willing to lose
+
+        Outputs
+        True or False
+        '''
+        return a_units > loseable_units
+
 # In[62]:
 
 
 def risk_start():
     '''
     Welcomes the players to the game and takes their unit counts.
-    
+
     Outputs:
     attacking_units: number of attacking units
     defending_units: number of defending units
-    units_willing_to_lose: number of units the attacker is willing to lose before they call off the attack 
+    units_willing_to_lose: number of units the attacker is willing to lose before they call off the attack
                            (units_willing_to_lose must be less than or equal to attacking_units)
     '''
     #tank!
     welcome_screen()
-    
+
     #user inputs for their starting amounts of units
-    
+
     attacking_units = user_inputs("Enter the amount of attacking units: ")
     defending_units = user_inputs("Enter the amount of defending units: ")
     units_willing_to_lose = user_inputs("Enter the amount of units the attacker is willing to lose: ")
-    
+
+    while check_user_values(attacking_units, units_willing_to_lose) == False:
+        print('''
+        The amount of attacking units must be greater than the amount of units the attacker is willing to lose.
+        Please try again.
+        ''')
+        attacking_units = user_inputs("Enter the amount of attacking units: ")
+        units_willing_to_lose = user_inputs("Enter the amount of units the attacker is willing to lose: ")
+
     return (attacking_units, defending_units, units_willing_to_lose)
 
 
@@ -77,15 +98,15 @@ def risk_start():
 def roll_dice(units):
     '''
     Generates multiple dice rolls.
-    
+
     Arguments
     Units: Amount of units in play
-    
+
     Outputs
     Rolls: List of all rolls
     '''
     rolls = []
-    
+
     for roll in range(units):
         #picking a random number from 1 - 6 for a die roll
         roll = random.randint(1,6)
@@ -99,19 +120,19 @@ def roll_dice(units):
 def check_attacker_units(attacking_units):
     '''
     Checks how many dice the attacker will get for the battle
-    
+
     Arguments
     attacking_units: Amount of attacking units in play
-    
-    Outputs 
+
+    Outputs
     Amount of dice the attacker gains
     '''
-    
-    if attacking_units >= 3: 
+
+    if attacking_units >= 3:
         return roll_dice(3)
-    elif attacking_units == 2: 
+    elif attacking_units == 2:
         return roll_dice(2)
-    elif attacking_units == 1: 
+    elif attacking_units == 1:
         return roll_dice(1)
     else:
         return []
@@ -123,16 +144,16 @@ def check_attacker_units(attacking_units):
 def check_defender_units(defending_units):
     '''
     Checks how many dice the defender will get for the battle
-    
+
     Arguments
     defending_units: Amount of defending units in play
-    
-    Outputs 
+
+    Outputs
     Amount of dice the defender gains
     '''
-    if defending_units >= 2: 
+    if defending_units >= 2:
         return roll_dice(2)
-    elif defending_units == 1: 
+    elif defending_units == 1:
         return roll_dice(1)
     else:
         return []
@@ -143,13 +164,13 @@ def check_defender_units(defending_units):
 
 def risk_battle(attacking_units, defending_units):
     '''
-    Simulates one "battle" of Risk. 
+    Simulates one "battle" of Risk.
     (Battle is being used very loosely to mean one roll of x amount of dice from the attacker and the defender)
-    
+
     Arguments
     attacking_units: number of attacking units
     defending_units: number of defending units
-    
+
     Outputs:
     attacking_units: how many attacking units remain after the battle
     defending_units: how many defending units remain after the battle
@@ -158,15 +179,15 @@ def risk_battle(attacking_units, defending_units):
 # giving the attacker and defender the correct amount of dice per units they have
     attacker_dice = check_attacker_units(attacking_units)
     defender_dice = check_defender_units(defending_units)
-    
-            
-#checking to see if both players have any dice     
+
+
+#checking to see if both players have any dice
     while len(attacker_dice) > 0 and len(defender_dice) > 0:
         # grabbing the highest roll from each player
         highest_attacker_roll = max(attacker_dice)
         highest_defender_roll = max(defender_dice)
 
-#comparing the highest rolls of the attacker and defender, subtracting a unit from whichever side has the lower roll 
+#comparing the highest rolls of the attacker and defender, subtracting a unit from whichever side has the lower roll
         if highest_defender_roll >= highest_attacker_roll:
             attacking_units -= 1
             defender_dice.remove(highest_defender_roll)
@@ -175,7 +196,7 @@ def risk_battle(attacking_units, defending_units):
             defending_units -= 1
             attacker_dice.remove(highest_attacker_roll)
             defender_dice.remove(highest_defender_roll)
-            
+
     return (attacking_units, defending_units)
 
 
@@ -185,12 +206,12 @@ def risk_battle(attacking_units, defending_units):
 def results_of_risk_battle(attacking_units, defending_units):
     '''
     Prints current unit counts of attacker and defender
-    
+
     Arguments
     attacking_units: number of attacking units
     defending_units: number of defending units
     '''
-    
+
     print("")
     print(f"Attacker has {attacking_units} remaining units, Defender has {defending_units} remaining units!")
     print("")
@@ -202,14 +223,14 @@ def results_of_risk_battle(attacking_units, defending_units):
 def attacker_gives_up():
     '''
     Checks to see if the attacker wants to continue the game
-    
+
     Outputs:
     True or False
     '''
-    
+
     give_up = input("Do you want to stop attacking? Y or N? ")
     give_up = give_up.upper()
-    
+
     if give_up == "Y":
         return True
     elif give_up == "N":
@@ -225,14 +246,14 @@ def attacker_gives_up():
 def attacker_wins(a_units):
     '''
     Win Screen for the Attacker
-    
+
     Inputs: Amount of attacking units
     '''
-    
+
     print("      /| ________________   ")
     print("O|===|* >________________>  ")
     print("      \|                    ")
-    print("                            ") 
+    print("                            ")
     print(f"The Attacker has won the game with {a_units} remaining units!")
 
 
@@ -242,10 +263,10 @@ def attacker_wins(a_units):
 def defender_wins(d_units):
     '''
     Win Screen for the Defender
-    
+
     Inputs: Amount of defending units
     '''
-    
+
     print("     _..._     ")
     print(" .-'_.---._'-. ")
     print(" ||####|(__)|| ")
@@ -265,13 +286,13 @@ def defender_wins(d_units):
 def risk_game():
     '''
     Simulates multiple "battles" in Risk and returns the overall winner.
-    
-    Outputs 
+
+    Outputs
     Amount of dice the attacker gains
     '''
-    
+
     start = risk_start()
-    
+
     attacking_units = start[0]
     defending_units = start[1]
     units_willing_to_lose = start[2]
@@ -280,16 +301,16 @@ def risk_game():
     #checking if attacker hasn't lost more than they were willing to and that the defender has units left
     while attacking_units > remaining_attacker_units and defending_units != 0:
         battle = risk_battle(attacking_units, defending_units)
-        
+
         #current units for attacker and defender after one "battle"
         attacking_units = battle[0]
         defending_units = battle[1]
-        
+
         results_of_risk_battle(attacking_units, defending_units)
-        
+
         if attacker_gives_up():
             return defender_wins(defending_units)
-        
+
     if defending_units == 0:
         return attacker_wins(attacking_units)
     else:
@@ -300,4 +321,3 @@ def risk_game():
 
 
 risk_game()
-
